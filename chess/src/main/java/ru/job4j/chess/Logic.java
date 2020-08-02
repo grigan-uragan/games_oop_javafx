@@ -23,14 +23,26 @@ public class Logic {
     public void move(Cell source, Cell dest)
             throws FigureNotFoundException, ImpossibleMoveException, OccupiedCellException {
         int index = findBy(source);
-        Cell[] steps = figures[index].way(source, dest);
+        Cell[] steps = null;
+        try {
+           steps = figures[index].way(source, dest);
+        } catch (IllegalStateException e) {
+            throw new ImpossibleMoveException();
+        }
         if (!isFree(steps)) {
             throw new OccupiedCellException();
         }
         figures[index] = figures[index].copy(dest);
     }
 
-    private boolean isFree(Cell[] steps) {
+    private boolean isFree(Cell[] steps) throws OccupiedCellException {
+        for (Cell cell : steps) {
+            for (Figure figure : figures) {
+                if (figure != null && figure.position().equals(cell)) {
+                    throw new OccupiedCellException();
+                }
+            }
+        }
         return true;
     }
 
